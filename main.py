@@ -68,5 +68,27 @@ for cve in data['CVE_Items'] :
             query = """ INSERT INTO product(name,vendor_id) VALUES (%s,%s) 
                         ON CONFLICT DO NOTHING """
             cursor.execute(query,(product_name,vendor_id))
+            version_data = product['version']['version_data']
+
+            query= """SELECT id from product where name = '%s'  """ % (product_name)
+            cursor.execute(query)
+            product_id = cursor.fetchone()[0]
+
+            query = """ INSERT INTO products_in_cve (cve_id,vendor_id,product_id) VALUES(%s,%s,%s) 
+                         ON CONFLICT DO NOTHING """
+            cursor.execute(query,(cve_id,vendor_id,product_id))
+
+
+            for version in product['version']['version_data'] :
+                version_value = version['version_value']
+                query = """INSERT INTO cve_affects_product_version(cve_id,vendor_id,product_id,version) 
+                            VALUES(%s,%s,%s,%s)  ON CONFLICT DO NOTHING  """
+                cursor.execute(query,(cve_id,vendor_id,product_id,version_value))
+
+
+
+            #versions = list(map(lambda x: x['version_value'], product['version']['version_data']))
+
+
 
 conn.commit()

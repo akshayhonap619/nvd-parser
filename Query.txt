@@ -1,0 +1,8 @@
+-- CVE with max vulnerable products
+-- select "Cve".cve_id,count(product_id) from temp,"Cve",vendor,product where temp.cve_id = "Cve".id 
+-- 		and temp.vendor_id = vendor.id and product_id = product.id
+-- 		group by "Cve".cve_id
+-- 		order by Count(*) desc limit 10
+		
+-- Max Vulnerable products
+Select product.name,count(name) from product,temp where product.id = temp.product_id group by name order by count(*) desc
