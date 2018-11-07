@@ -5,6 +5,7 @@ from os import listdir
 from os.path import isfile, join
 import zipfile
 import json
+import os
 from helpers import *
 
 # Go to the NVD seed page and extract the text from the page
@@ -14,14 +15,15 @@ r_text = rs.text
 # Look for all the json zip files
 # Store each file in the /data folder
 for filename in re.findall("nvdcve-1.0-[a-z0-9]*\.json\.zip",r_text):
+    print("Downloaded file")
     print(filename)
     r_file = requests.get("https://static.nvd.nist.gov/feeds/json/cve/1.0/" + filename, stream=True)
     with open("data/" + filename, 'wb') as f:
         for chunk in r_file:
             f.write(chunk)
 
-# Database connection
-conn = psycopg2.connect("dbname=Test user=swiss password=swiss")
+
+conn = psycopg2.connect(os.environ['DB_Connection'])
 cursor = conn.cursor()
 
 # Get all the files from the /data folder. Sort the files so that we can start from year 2002 and go in order
@@ -30,6 +32,7 @@ files.sort()
 
 # Read each zip file and store it's content in the data variable. It contains all the json data of 1 file
 for file in files:
+    print("Currently processing file ")
     print(file)
     archive = zipfile.ZipFile(join("data/", file), 'r')
     jsonfile = archive.open(archive.namelist()[0])
